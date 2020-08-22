@@ -89,3 +89,9 @@ RUN echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.zshrc
 
 # clean
 RUN rm -rf /var/lib/apt/lists/*
+
+ENV TERM=screen-256color
+WORKDIR /root
+RUN sed -i 's/source $ZSH\/oh-my-zsh.sh/HISTFILE=$HOME\/.zsh_history.d\/.zsh_history\nsource $ZSH\/oh-my-zsh.sh/g' ~/.zshrc
+
+CMD ["/usr/sbin/sshd", "-D"]
