@@ -1,40 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
-PROJECT="$1"
+PROJECT_PATH="$1"
+PROJECT_NAME="$2"
 
-# if [ ! -d "$HOME/.docker/workspace" ]; then
-# 	mkdir -p $HOME/.docker/workspace
-# 	mkdir -p $HOME/.docker/workspace/.zsh_history.d
-# 	touch $HOME/.docker/workspace/.zsh_history.d/.zsh_history
-# fi
-
-if [ ! -f "$PROJECT/mnt" ]; then
-	mkdir -p $PROJECT
-	mkdir -p $PROJECT/mnt
-	mkdir -p $PROJECT/.zsh_history.d
-	mkdir -p $PROJECT/.ssh
-	touch $PROJECT/.zsh_history.d/.zsh_history
-
-	cat << EOF > $PROJECT/.gitconfig
-[user]
-  	name = username
-  	email = useremail
-
-[alias]
-	co = checkout
-	st = status
-EOF
-
+if [ ! -d "$PROJECT/mnt" ]; then
+	echo "sudo ./init.sh [directory]"
+	exit 1
 fi
 
 docker run \
-	-d --rm --name workspace \
+	-d --rm --name $PROJECT_NAME \
 	-p 8023:22 \
-	-h workspace \
+	-h $PROJECT_NAME \
+	-v $PROJECT_PATH/.zsh_history.d/.zsh_history:/root/.zsh_history.d/.zsh_history \
+	-v $PROJECT_PATH/.ssh:/root/.ssh \
+	-v $PROJECT_PATH/.gitconfig:/root/.gitconfig \
+	-v $PROJECT_PATH/mnt:/root/environment \
 	-v /var/run/docker.sock:/var/run/docker.sock \
-	-v $PROJECT/.zsh_history.d/.zsh_history:/root/.zsh_history.d/.zsh_history \
-	-v $PROJECT/.ssh:/root/.ssh \
-	-v $PROJECT/.gitconfig:/root/.gitconfig \
-	-v $PROJECT/mnt:/root/environment \
 	-w /root/environment \
-	nmops/workspace:1.0
+	nmops/workspace:1.1

@@ -7,7 +7,9 @@ RUN apt-get update && apt-get install -y openssh-server
 
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
-RUN sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+# RUN sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+RUN sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication yes/g" /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
@@ -90,7 +92,7 @@ RUN echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.zshrc
 # clean
 RUN rm -rf /var/lib/apt/lists/*
 
-ENV TERM=screen-256color
+ENV TERM=xterm-256color
 WORKDIR /root
 RUN sed -i 's/source $ZSH\/oh-my-zsh.sh/HISTFILE=$HOME\/.zsh_history.d\/.zsh_history\nsource $ZSH\/oh-my-zsh.sh/g' ~/.zshrc
 
