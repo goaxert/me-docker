@@ -42,6 +42,12 @@ RUN apt-get install -y \
     tmux \
     vim \
     make \
+    unzip \
+    jq \
+    curl \
+    gettext \
+    moreutils \
+    bash-completion \
     build-essential \
     libssl-dev \
     zlib1g-dev \
@@ -57,11 +63,20 @@ RUN apt-get install -y \
     libffi-dev \
     liblzma-dev
 
+# pyenv
+RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+RUN echo 'export PYENV_ROOT="$HOME/.pyenv"' >> /root/.zshrc
+RUN echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.zshrc
+RUN /root/.pyenv/bin/pyenv install 3.6.10
+RUN curl https://bootstrap.pypa.io/get-pip.py | python3
+
+# install pip packages
+RUN pip install --user yq
+
 # docker
 RUN apt-get install -y \
     apt-transport-https \
     ca-certificates \
-    curl \
     gnupg-agent \
     software-properties-common
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -72,13 +87,6 @@ RUN add-apt-repository \
     stable"
 RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
 
-# pyenv
-RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-RUN echo 'export PYENV_ROOT="$HOME/.pyenv"' >> /root/.zshrc
-RUN echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.zshrc
-RUN /root/.pyenv/bin/pyenv install 3.6.10
-RUN curl https://bootstrap.pypa.io/get-pip.py | python3
-
 # tmux
 RUN cd ~ && \
     git clone https://github.com/gpakosz/.tmux.git && \
@@ -88,6 +96,42 @@ RUN cd ~ && \
 RUN sed -i 's/#tmux_conf_theme_/tmux_conf_theme_/g' ~/.tmux.conf.local
 RUN pip install --user tmuxp
 RUN echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.zshrc
+
+# vim
+RUN git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
+RUN sh ~/.vim_runtime/install_awesome_vimrc.sh
+
+# kubectl
+RUN curl --silent --location -o /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.16.12/2020-07-08/bin/linux/amd64/kubectl
+RUN chmod +x /usr/local/bin/kubectl
+RUN echo 'alias k=kubectl' >>~/.zshrc && \
+    echo 'source <(kubectl completion zsh)' >>~/.zshrc && \
+    echo 'complete -F __start_kubectl k' >>~/.zshrc
+
+# helm
+RUN curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+RUN helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+RUN echo 'alias h=helm' >>~/.zshrc && \
+    echo 'source <(helm completion zsh)' >>~/.zshrc && \
+    echo 'complete -F __start_helm h' >>~/.zshrc
+
+# eksctl
+RUN curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+RUN mv -v /tmp/eksctl /usr/local/bin
+RUN mkdir -p ~/.zsh/completion/ && \
+    eksctl completion zsh > ~/.zsh/completion/_eksctl && \
+    echo 'fpath=($fpath ~/.zsh/completion)' >>~/.zshrc && \
+    echo 'autoload -U compinit' >>~/.zshrc && \
+    echo 'compinit' >>~/.zshrc
+
+# awscli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip && \
+    rm -rf aws
+RUN echo 'autoload bashcompinit && bashcompinit' >>~/.zshrc && \
+    echo "complete -C '/usr/local/bin/aws_completer' aws" >>~/.zshrc
 
 # clean
 RUN rm -rf /var/lib/apt/lists/*

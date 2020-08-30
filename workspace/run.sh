@@ -18,4 +18,6 @@ docker run \
 	-v $PROJECT_PATH/mnt:/root/environment \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-w /root/environment \
-	nmops/workspace:1.1
+	nmops/workspace:1.2
+
+
