@@ -6,7 +6,7 @@
 * protoc: 3.13.0
 * grpc
     * google.golang.org/grpc
-    * github.com/golang/protobuf/protoc-gen-go
+    * google.golang.org/protobuf/protoc-gen-go
     * github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	* github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 * etc

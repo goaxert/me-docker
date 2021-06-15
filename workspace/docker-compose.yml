@@ -1,0 +1,37 @@
+version: '3.4'
+
+# .env
+# PROJECT_NAME=workspace
+# PROJECT_PATH=~/environment/workspace
+
+services:
+  workspace:
+    image: nmops/workspace:1.5
+    working_dir: /root/dev
+    environment:
+      - LC_ALL=C.UTF-8
+    volumes:
+      - ${PROJECT_PATH}/.zsh_history.d/.zsh_history:/root/.zsh_history.d/.zsh_history
+      - ${PROJECT_PATH}/.local/autojump:/root/.local/share/autojump
+      - ${PROJECT_PATH}/.kube:/root/.kube
+      - ${PROJECT_PATH}/.ssh:/root/.ssh
+      - ${PROJECT_PATH}/.gitconfig:/root/.gitconfig
+      - workspace_dev:/root/dev
+      - workspace_vscode:/root/.vscode-server
+      - /var/run/docker.sock:/var/run/docker.sock
+    hostname: ${PROJECT_NAME}
+    networks:
+      - net_workspace
+    ports:
+      - '8022:22'
+      - '9094:9094'
+      - '9096:9096'
+
+networks:
+  net_workspace:
+
+volumes:
+  workspace_dev:
+    external: true
+  workspace_vscode:
+    external: true

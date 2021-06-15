@@ -22,7 +22,7 @@ if [ ! -d "$PROJECT_PATH/mnt" ]; then
 	mkdir -p $PROJECT_PATH/.ssh
 
     echo "Create the .gitconfig file."
-	cat << EOF > $PROJECT/.gitconfig
+	cat << EOF > $PROJECT_PATH/.gitconfig
 [user]
   	name = username
   	email = useremail

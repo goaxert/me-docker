@@ -87,6 +87,10 @@ RUN add-apt-repository \
     stable"
 RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
 
+# docker-compose
+RUN curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+RUN chmod +x /usr/local/bin/docker-compose
+
 # tmux
 RUN cd ~ && \
     git clone https://github.com/gpakosz/.tmux.git && \
@@ -133,11 +137,41 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN echo 'autoload bashcompinit && bashcompinit' >>~/.zshrc && \
     echo "complete -C '/usr/local/bin/aws_completer' aws" >>~/.zshrc
 
+# nvm (nodejs)
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 10.22.0
+
+RUN mkdir $NVM_DIR
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash && \
+    . $NVM_DIR/nvm.sh && \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use default
+
+RUN echo 'export NVM_DIR="/usr/local/nvm"' >>~/.zshrc
+RUN echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>~/.zshrc
+RUN echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >>~/.zshrc
+
+# gvm (go)
+RUN apt-get install -y bison
+RUN ["/bin/zsh", "-c", "zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)"]
+RUN ["/bin/zsh", "-c", ". /root/.gvm/scripts/gvm && gvm install go1.15 -B"]
+RUN ["/bin/zsh", "-c", ". /root/.gvm/scripts/gvm && gvm use go1.15 --default"]
+# RUN bash -c /root/.gvm/scripts/gvm && \
+#     gvm install go1.15 -B && \
+#     gvm use go1.15 --default
+
 # clean
 RUN rm -rf /var/lib/apt/lists/*
 
+ENV LC_ALL=C.UTF-8
 ENV TERM=xterm-256color
+
 WORKDIR /root
 RUN sed -i 's/source $ZSH\/oh-my-zsh.sh/HISTFILE=$HOME\/.zsh_history.d\/.zsh_history\nsource $ZSH\/oh-my-zsh.sh/g' ~/.zshrc
+
+# k8s utils
+COPY k8sutils.sh /root/k8sutils.sh
+RUN echo "source ~/k8sutils.sh" >> ~/.zshrc
 
 CMD ["/usr/sbin/sshd", "-D"]

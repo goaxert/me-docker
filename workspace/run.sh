@@ -10,14 +10,15 @@ fi
 
 docker run \
 	-d --rm --name $PROJECT_NAME \
-	-p 8023:22 \
+	-p 8022:22 \
 	-h $PROJECT_NAME \
 	-v $PROJECT_PATH/.zsh_history.d/.zsh_history:/root/.zsh_history.d/.zsh_history \
+	-v $PROJECT_PATH/.kube:/root/.kube \
 	-v $PROJECT_PATH/.ssh:/root/.ssh \
 	-v $PROJECT_PATH/.gitconfig:/root/.gitconfig \
 	-v $PROJECT_PATH/mnt:/root/environment \
 	-v /var/run/docker.sock:/var/run/docker.sock \
 	-w /root/environment \
-	nmops/workspace:1.2
+	nmops/workspace:1.3
 
 

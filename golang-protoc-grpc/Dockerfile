@@ -17,9 +17,9 @@ RUN mkdir -p /usr/share/protobuf && \
 # Install packages
 RUN go get \
 	google.golang.org/grpc \
-	github.com/golang/protobuf/protoc-gen-go \
+	google.golang.org/protobuf/cmd/protoc-gen-go \
 	github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
-	github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
+	github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2 \
 	github.com/cespare/reflex \
 	github.com/golang/mock/gomock \
 	github.com/golang/mock/mockgen \
